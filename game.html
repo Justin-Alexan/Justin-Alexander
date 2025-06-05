@@ -1,0 +1,165 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Los Paticos de Colores</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      transition: background 2s ease;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+
+    .options button {
+      display: block;
+      margin: 8px 0;
+      padding: 10px;
+      width: 100%;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      text-align: left;
+      transition: 0.3s;
+    }
+
+    .options button.correct {
+      background-color: #a4edba;
+      border-color: #4caf50;
+      color: #1b5e20;
+      font-weight: bold;
+    }
+
+    #score {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    #nextBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Los Paticos de Colores</h2>
+  <div id="gameContainer">
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <button id="nextBtn">Siguiente pregunta</button>
+    <div id="score"></div>
+  </div>
+
+  <script>
+    // Redireccionar si no ha iniciado sesión
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'index.html';
+    }
+
+    const questions = [
+      {
+        question: "¿Cuántas personas de esta sección retirarán?",
+        options: ["15", "10", "13", "20"]
+      },
+      {
+        question: "¿Cuál materia es más difícil con Adrián Alcántara?",
+        options: ["S03", "Seguridad en Aplicaciones", "Fundamentos de Seguridad"]
+      },
+      {
+        question: "¿Algo que te da de regalo Adrián Alcántara?",
+        options: ["Chances", "Oportunidad"]
+      },
+      {
+        question: "¿Cuál ruleta le gusta más?",
+        options: ["Los Paticos", "La moneda", "El Sombrero"]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const nextBtn = document.getElementById('nextBtn');
+    const scoreDisplay = document.getElementById('score');
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      questionText.textContent = q.question;
+      optionsContainer.innerHTML = '';
+      nextBtn.style.display = 'none';
+
+      q.options.forEach((option, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(btn);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(selectedBtn) {
+      const buttons = optionsContainer.querySelectorAll('button');
+
+      // Deshabilitar todos los botones y limpiar clases
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('correct');
+      });
+
+      // Marcar sólo el botón seleccionado como correcto
+      selectedBtn.classList.add('correct');
+
+      // Suma punto siempre que el usuario elija una opción
+      score++;
+
+      scoreDisplay.textContent = `Puntaje: ${score} / ${questions.length}`;
+      nextBtn.style.display = 'inline-block';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestion++;
+      if (currentQuestion >= questions.length) {
+        alert(`Juego terminado! Tu puntaje final es: ${score} / ${questions.length}`);
+        localStorage.removeItem('loggedIn');
+        window.location.href = 'index.html';
+      } else {
+        showQuestion();
+      }
+    });
+
+    showQuestion();
+
+    // 🎨 Fondo dinámico cada 5 segundos
+    function getRandomColor() {
+      const colors = ['#FFDEE9', '#B5FFFC', '#D4FC79', '#96E6A1', '#FFD3A5', '#FBC2EB', '#A1C4FD', '#C2FFD8'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function changeBackground() {
+      document.body.style.background = getRandomColor();
+    }
+
+    setInterval(changeBackground, 5000);
+    changeBackground();
+
+    // 🔒 Cierra sesión si se cierra la pestaña
+    window.addEventListener('beforeunload', () => {
+      localStorage.removeItem('loggedIn');
+    });
+  </script>
+</body>
+</html>
